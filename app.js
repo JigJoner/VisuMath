@@ -10,7 +10,7 @@ app.use("/css", express.static("./public/css"));
 app.use("/img", express.static("./public/img"));
 
 app.get("/", function (req, res) {
-    let doc = fs.readFileSync("./app/html/index.html", "utf8");
+    let doc = fs.readFileSync("./app/html/main.html", "utf8");
     res.send(doc);
 });
 
