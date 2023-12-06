@@ -6,18 +6,33 @@
     <link rel="icon" type="image/x-icon" href="/img/favicon.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
 
+    <script type="module" src="/modules/ajax.js"></script>
+    <script type="module" src="/js/global.js"></script>
 </head>
 <body>
-    <div class="container" id="body">
-        <nav id="navbar">
-        </nav>
-        <div id="content">
-            <button id="tempButton">Click here</button>
-        </div>
-        <footer id="footer">
-        </footer>
+    <div id="formContainer">
+        <form id="postForm">
+            <input type="text" id="username" placeholder="username">
+            <input type="password" id="password" placeholder="password">
+            <input type="text" id="post" placeholder="type here (max characters: 500)">
+        </form>
     </div>
+    <div class="bubbleContainer">
+    </div>
+    <template id="bubbleTemplate">
+        <div class="bubble">
+            <header class="bubbleHeader"></header>
+            <div class="bubbleDetail"></div>
+            <div class="bubbleDescription"></div>
+            <button class="bubbleButton"> See Posts </button>
+        </div>
+    </template>
+    <script type="module">
+        import {func} from '/js/global.js';
+        func.main.doAll();
+    </script>
 </body>
 
 </html>

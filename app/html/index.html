@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> VisuMath </title>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/temp.css">
+
+    <script type="module" src="/modules/ajax.js"></script>
+    
+</head>
+<body>
+    <div class="container" id="body">
+        <nav class="navbar" id="navbar">
+        </nav>
+        <div class="content" id="content">
+            <button id="tempButton">Click here</button>
+            <img src="/img/favicon.png">
+        </div>
+        <footer class="footer" id="footer">
+        </footer>
+    </div>
+    <script type="module" src="/js/global.js"></script>
+    <script type="module">
+        import {func} from '/js/global.js';
+        func.index.doAll();
+    </script>
+</body>
+
+</html>

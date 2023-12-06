@@ -1,0 +1,13 @@
+#navbar{
+    background-color: grey;
+}
+#content{
+    background-color: antiquewhite;
+}
+#footer{
+    background-color:blue;
+}
+
+#drag{
+    position: absolute;
+}

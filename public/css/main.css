@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    position: relative;
+    width:100vw;
+    height:auto;
+}
+@media (max-width: 720px){
+    body{
+        width:720px;
+    }
+}
+
+.bubble{
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    background-color: bisque;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 20%;
+}
+.bubbleHeader{
+    font-size: 100%;
+}
+.bubbleDetail{
+    overflow: auto;
+}
+.bubbleDescription{
+    overflow: auto;
+}
