@@ -22,6 +22,36 @@ app.get("/main", function (req, res) {
     res.send(doc);
 });
 
+app.get("/timeline", async function(req, res){
+    const mysql = require("mysql2/promise");
+    const connection = await mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "",
+        database: "assignment6"
+    })
+    let [rows, fields] = await (connection.execute("SELECT * FROM post INNER JOIN student ON student.ID = post.userID"));
+    rows.sort(function(a, b){
+        let dateA = new Date(`${a.date}${a.time}`);
+        let dateB = new Date(`${b.date}${b.time}`);
+        if (a < b){
+            return 1;
+        }else if (a > b){
+            return -1;
+        }else{
+            return 0;
+        }
+    })
+    let table = "<table><tr><th>time</th><th>username</th><th>text</th></tr>";
+    for (let i = 0; i < rows.length; i++) {
+        table += "<tr><td>" + `${rows[i].date}<br>${rows[i].time}` + "</td><td>" + rows[i].userName + "</td><td>"
+            + rows[i].text + "</td></tr>";
+    }
+    table += "</table>";
+    res.send(table);
+    //TO DO
+})
+
 app.get("/table-student", function(req, res){
     tableStudent(req, res);
 });
@@ -63,20 +93,28 @@ async function tablePost(req, res){
     //TO DO
 }
 
-app.post('/add-row-post', (req, res) => {
-    const postData = req.body;
-    console.log(postData);
+app.post('/add-row-post', async (req, res) => {
+    const mysql = require("mysql2/promise");
+    try {
+        const connection = await mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "",
+            database: "assignment6"
+        });
 
-    const mysql = require("mysql2");
-    const connection = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "assignment6"
-    })
-    connection.execute(`INSERT INTO post (ID, userID, date, time, text, views) VALUES
-    ('${postData.ID}', '${postData.userID}', '${postData.date}', '${postData.time}', '${postData.text}', '${postData.views}')`);
-    res.status(200).send('POST request received successfully');
+        const postData = req.body;
+
+        const [results, fields] = await connection.execute(
+            `INSERT INTO post (userID, date, time, text, views) VALUES (?, ?, ?, ?, ?)`,
+            [postData.userID, postData.date, postData.time, postData.text, postData.views]
+        );
+
+        res.send('POST request received successfully');
+    } catch (error) {
+        console.error('Error executing SQL query:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 let port = 8000;

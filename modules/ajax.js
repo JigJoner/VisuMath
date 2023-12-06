@@ -31,16 +31,28 @@ export let ajaxGET = async function (url, responseType, header) {
     });
 }
 
-export let ajaxPOST = async function (url, post) {
+export let ajaxPOST = function (url, post) {
     return new Promise((resolve, reject) => {
-        let xhr = new XMLHttpRequest()
-        xhr.open('POST', url, true)
-        xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8')
-        xhr.send(JSON.stringify(post));
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+
         xhr.onload = function () {
-            if (xhr.status === 201) {
-                resolve("Post successfully created!")
+            if (xhr.status === 200) {
+                console.log("Request completed successfully");
+                resolve("Post successfully created!");
+            } else {
+                console.error('Error: ' + xhr.status);
+                reject('Error: ' + xhr.status);
             }
-        }
+        };
+
+        xhr.onerror = function () {
+            console.error('Network error occurred');
+            reject('Network error occurred');
+        };
+
+        console.log("Sending request");
+        xhr.send(JSON.stringify(post));
     });
 };

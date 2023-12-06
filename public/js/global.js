@@ -27,11 +27,9 @@ import { ajaxGET, ajaxPOST } from "../../modules/ajax.js";
 export let func = {
     main: {
         doAll: async function () {
-            this.loadForm();
-
             //Grab data from sessionStorage that was loaded previously
-            let students = JSON.parse(sessionStorage.getItem("students"));
-            let posts = JSON.parse(sessionStorage.getItem("posts"));
+            let students = await JSON.parse(await sessionStorage.getItem("students"));
+            let posts = await JSON.parse(await sessionStorage.getItem("posts"));
             if (!students) {
                 students = await ajaxGET("/table-student", "json", ["type", "rows"]);
                 sessionStorage.setItem("students", JSON.stringify(students));
@@ -40,13 +38,15 @@ export let func = {
                 posts = await ajaxGET("/table-post", "json", ["type", "json"]);
                 sessionStorage.setItem("posts", JSON.stringify(posts));
             }
-            
+            await this.loadForm(students);
             //Add student bubbles
             students.forEach(function (student) {
                 func.main.addBubble({
                     id: student.ID,
                     type: "students",
-                    header: `${student.userName}<br>${student.firstName} ${student.lastName}`
+                    header: `<b>${student.userName}<b><br><i>${student.firstName} ${student.lastName}</i>`,
+                    detail: `${student.email}`,
+                    description: `This is a student`
                 }, student);
             })
             //Set event handlers for each bubble click
@@ -55,18 +55,20 @@ export let func = {
                 bubble.lastElementChild.addEventListener("click", function(e){
                     document.querySelector(".bubbleContainer").innerHTML = "";
                     posts.forEach(function(post){
-                        if (post.userID == bubble.attributes.id.value){
+                        if (`o${post.userID}` == bubble.attributes.id.value){
                             func.main.addBubble({
-                                id: post.ID,
+                                id: `${post.ID}`,
                                 type: "posts",
-                                header: `${post.date}<br>${post.time}`,
+                                header: `${post.date}<br><i>${post.time}</i>`,
+                                detail: `Views: ${post.views}`,
                                 description: `${post.text}`
-                            })
+                            }, post)
                         }
                     })
                 });
             })
-            
+            let table = await ajaxGET("/timeline", "text", ["type", "rows"]);
+            document.getElementById("timeline").innerHTML = table;
         },
         addBubble: async function (bubbleData, original) {
             let bubbleTemplate = document.getElementById("bubbleTemplate");
@@ -77,12 +79,20 @@ export let func = {
             let bubbleDetail = bubbleDocFrag.querySelector(".bubbleDetail");
             let bubbleDescription = bubbleDocFrag.querySelector(".bubbleDescription");
             let bubbleButton = bubbleDocFrag.querySelector(".bubbleButton");
-            bubbleNode.id = `${bubbleData.id}`;
+            bubbleNode.id = `o${bubbleData.id}`;
             bubbleHeader.innerHTML = `${bubbleData.header}`;
-            bubbleButton.setAttribute("id", bubbleData.id);
-            console.log(original);
-            bubbleNode.style.left = original.hasOwnProperty("coord") ? original.coord.left : "0px";
-            bubbleNode.style.top = original.hasOwnProperty("coord") ? original.coord.top : "0px";
+            bubbleButton.setAttribute("id", `o${bubbleData.id}`);
+            bubbleDetail.innerHTML = `${bubbleData.detail}`
+            bubbleDescription.innerHTML = `${bubbleData.description}`
+            if(bubbleData.type == "posts"){
+                bubbleButton.style.visibility = "hidden";
+                bubbleNode.style.left = original.hasOwnProperty("coord") ? original.coord.left : "100px";
+                bubbleNode.style.top = original.hasOwnProperty("coord") ? original.coord.top : "100px";
+            }else{
+                bubbleNode.style.left = original.hasOwnProperty("coord") ? original.coord.left : "0px";
+                bubbleNode.style.top = original.hasOwnProperty("coord") ? original.coord.top : "0px";
+            }
+            
             addDragFunction();
 
             function addDragFunction() {
@@ -164,11 +174,38 @@ export let func = {
             })
             sessionStorage.setItem("assignment6", JSON.stringify(students));
         },
-        loadForm: async function () {
+        loadForm: async function (students) {
             let username = document.getElementById("username");
             let password = document.getElementById("password");
             let text = document.getElementById("post");
+            let button = document.getElementById("enterPost");
 
+            /*
+                WARNINNNGNGNGNGNGNGNG
+                MUST MAKE BUTTONS TYPE=BUTTON TO USE. OTHERWISE, EVERYTHIGN BREAKS
+            */
+            button.addEventListener("click", async function(event){
+                let theFuckingObject;
+                students.forEach(function(student){
+                    if(student.userName == username.value && student.password == password.value){
+                        theFuckingObject = student;
+                        alert("success");
+                    }
+                })
+                let now = new Date();
+                let object = {
+                    userID: theFuckingObject.ID, 
+                    date: `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`,
+                    time: `T${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}:${now.getMilliseconds()}z`,
+                    text: text.value,
+                    views: Math.round(Math.random() * 1000)
+                }
+                await ajaxPOST("/add-row-post", object).then((result)=>console.log(result));
+                sessionStorage.removeItem("posts");
+                window.location.href = "/main";
+                // document.querySelector(`#o${theFuckingObject.ID}.bubbleButton`).click();
+            })
+            
         },
         updateSession(key, ID, pair){
             let students = JSON.parse(sessionStorage.getItem(key));
